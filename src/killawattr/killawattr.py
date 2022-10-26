@@ -22,6 +22,12 @@ class Killawattr:
 
         return response.json()
 
+    def save_csv(self, df, filename):
+        output_file = f'csv-{filename}.csv'
+        with open(output_file, 'w') as f:
+            f.write(df.to_csv())
+            print(f'[+] Wrote the csv to {output_file}')
+
     def save_graph(self, df, filename):
         output_file = f'graph-{filename}.html'
         graph = df.plot.line()
@@ -38,3 +44,4 @@ class Killawattr:
         wrangled_data = wrangle_power_data(data['data'])
         df = create_filtered_and_sorted_data_frame(wrangled_data)
         self.save_graph(df, filename)
+        self.save_csv(df, filename)
