@@ -229,4 +229,9 @@ pip-selfcheck.json
 
 # End of https://www.toptal.com/developers/gitignore/api/macos,python,virtualenv,visualstudiocode
 
-
+graph-small.html
+graph-medium.html
+graph-large.html
+csv-small.csv
+csv-medium.csv
+csv-large.csv
