@@ -1,3 +1,5 @@
+import pandas as pd
+
 key_timestamp = 'time_stamp'
 key_power = 'Power-sum kW'
 key_supply = 'Supply temp °C'
@@ -49,3 +51,31 @@ def wrangle_power_data(data):
          key_wrangled_temperature_outdoor: temperature_outdoors,
          }
     return d
+
+
+def create_filtered_and_sorted_data_frame(d):
+    df = pd.DataFrame.from_dict(d)
+    # for some reason the values aren't even sorted in the api
+    df.sort_values(by=[key_wrangled_timestamp], inplace=True)
+
+    # remove nans
+    # it would be possible to interpolate some values here instead of just dropping them
+    # works for graphs maybe, but making up data is not very cool
+    df.dropna(inplace=True)
+
+    df.set_index(key_wrangled_timestamp, inplace=True)
+
+    # remove negative powers
+    df.drop(df[df.power < 0].index, inplace=True)
+    # remove > 100 kW (whatever is the maximum?)
+    df.drop(df[df.power > 100.0].index, inplace=True)
+
+    # remove unpossibly negative temperatures
+    df.drop(df[df.temperature_supply < -273.15].index, inplace=True)
+    df.drop(df[df.temperature_outdoor < -273.15].index, inplace=True)
+
+    # remove possibly impossibly high temperatures
+    df.drop(df[df.temperature_supply > 120.0].index, inplace=True)
+    df.drop(df[df.temperature_outdoor > 120.0].index, inplace=True)
+
+    return df
