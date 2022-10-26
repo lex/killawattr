@@ -19,7 +19,7 @@ $ (venv) pip3 install -r requirements.txt
 ### Running the example
 
 ```sh
-$ (venv) python3 examples/example.py
+$ (venv) PYTHONPATH=src python3 examples/example.py
 ```
 
 ### Testing
