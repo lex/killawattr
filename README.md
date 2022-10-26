@@ -18,8 +18,17 @@ $ (venv) pip3 install -r requirements.txt
 
 ### Running the example
 
+Modify the settings in [example.py](examples/example.py) and
+
 ```sh
 $ (venv) PYTHONPATH=src python3 examples/example.py
+```
+
+For the interactive example that supports fetching multiple files, see [example_interactive.py](examples/example_interactive.py)
+
+```sh
+$ (venv) PYTHONPATH=src python3 examples/example_interactive.py
+
 ```
 
 ### Testing
