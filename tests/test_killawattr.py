@@ -27,6 +27,12 @@ class TestKillawattrFetching:
         data_json = self.k.fetch_data(self.filename)
         assert 'Basic' in requests_mock.last_request.headers['Authorization']
 
+    def test_fetching_has_content_type_set_to_application_json(self, requests_mock):
+        requests_mock.register_uri(
+            self.method, self.url, json=self.json, status_code=200)
+        data_json = self.k.fetch_data(self.filename)
+        assert requests_mock.last_request.headers['Content-type'] == 'application/json'
+
     def test_fetching_returns_the_json_if_http_200(self, requests_mock):
         requests_mock.register_uri(
             self.method, self.url, json=self.json, status_code=200)
