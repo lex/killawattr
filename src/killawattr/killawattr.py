@@ -1,5 +1,8 @@
 import requests
 from requests.auth import HTTPBasicAuth
+from .wrangling import wrangle_power_data, create_filtered_and_sorted_data_frame
+import pandas as pd
+pd.options.plotting.backend = "plotly"
 
 
 class Killawattr:
@@ -18,3 +21,20 @@ class Killawattr:
             return None
 
         return response.json()
+
+    def save_graph(self, df, filename):
+        output_file = f'graph-{filename}.html'
+        graph = df.plot.line()
+        graph.write_html(output_file)
+        print(f'[+] Wrote the graph to {output_file}')
+
+    def get_clean_visualize_data(self, filename):
+        data = self.fetch_data(filename)
+        if not data:
+            print(
+                '[!] Couldn\'t get data. Try another filename or check your internet connection.')
+            return
+
+        wrangled_data = wrangle_power_data(data['data'])
+        df = create_filtered_and_sorted_data_frame(wrangled_data)
+        self.save_graph(df, filename)
