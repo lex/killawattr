@@ -1,4 +1,7 @@
+import pandas as pd
+import os
 from killawattr.killawattr import Killawattr
+
 
 API_URL = 'https://api.com'
 USERNAME = 'username'
@@ -44,3 +47,21 @@ class TestKillawattrFetching:
             self.method, self.url, json=self.json, status_code=404)
         data_json = self.k.fetch_data(self.filename)
         assert data_json == None
+
+
+class TestKillawattrSaving:
+    k = Killawattr(API_URL, USERNAME, PASSWORD)
+    filename = 'test'
+    df = pd.DataFrame(data={'a': [1, 2], 'b': [3, 4]})
+    expected_output_csv = f'csv-{filename}.csv'
+    expected_output_graph = f'graph-{filename}.html'
+
+    def test_save_csv_generates_a_file(self):
+        self.k.save_csv(self.df, self.filename)
+        assert os.path.exists(self.expected_output_csv)
+        os.remove(self.expected_output_csv)
+
+    def test_save_graph_generates_a_file(self):
+        self.k.save_graph(self.df, self.filename)
+        assert os.path.exists(self.expected_output_graph)
+        os.remove(self.expected_output_graph)
