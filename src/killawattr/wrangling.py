@@ -17,13 +17,13 @@ def extract_dict_value_or_none(d, key):
         value = d[key]
 
         # a special feature in the json
-        # sometimes there's "error" instead of a value
+        # sometimes there's 'error' instead of a value
         if value == 'error':
             return None
         else:
             return value
     except KeyError as e:
-        print(f'[!] Missing key "{key}"')
+        print(f'[!] Missing key \'{key}\'')
         return None
 
 
@@ -54,9 +54,18 @@ def wrangle_power_data(data):
 
 
 def create_filtered_and_sorted_data_frame(d):
+    power_minimum = 0
+    power_maximum = 100
+    temperature_minimum = -273.15
+    temperature_maximum = 120
+
     df = pd.DataFrame.from_dict(d)
     # for some reason the values aren't even sorted in the api
     df.sort_values(by=[key_wrangled_timestamp], inplace=True)
+
+    # 'In case there are missing or fraudulent readings in the dataset, please somehow indicate the user of their existence'
+    print('[!] Dropping the following rows with missing data:')
+    print(df[df.isna().any(axis=1)])
 
     # remove nans
     # it would be possible to interpolate some values here instead of just dropping them
@@ -65,17 +74,41 @@ def create_filtered_and_sorted_data_frame(d):
 
     df.set_index(key_wrangled_timestamp, inplace=True)
 
+    # there's probably not an easy to way to print what will be/was removed
+    # so I guess you could just print the rows and then drop them
+
     # remove negative powers
-    df.drop(df[df.power < 0].index, inplace=True)
+    rows = df[df.power < power_minimum].index
+    if rows.any():
+        print(f'[!] Removing {len(rows)} negative powers')
+    df.drop(rows, inplace=True)
+
     # remove > 100 kW (whatever is the maximum?)
-    df.drop(df[df.power > 100.0].index, inplace=True)
+    rows = df[df.power > power_maximum].index
+    if rows.any():
+        print(f'[!] Removing {len(rows)} too high powers')
+    df.drop(rows, inplace=True)
 
     # remove unpossibly negative temperatures
-    df.drop(df[df.temperature_supply < -273.15].index, inplace=True)
-    df.drop(df[df.temperature_outdoor < -273.15].index, inplace=True)
+    rows = df[df.temperature_supply < temperature_minimum].index
+    if rows.any():
+        print(f'[!] Removing {len(rows)} too low supply temperatures')
+    df.drop(rows, inplace=True)
+
+    rows = df[df.temperature_outdoor < temperature_minimum].index
+    if rows.any():
+        print(f'[!] Removing {len(rows)} too low outdoor temperatures')
+    df.drop(rows, inplace=True)
 
     # remove possibly impossibly high temperatures
-    df.drop(df[df.temperature_supply > 120.0].index, inplace=True)
-    df.drop(df[df.temperature_outdoor > 120.0].index, inplace=True)
+    rows = df[df.temperature_supply > temperature_maximum].index
+    if rows.any():
+        print(f'[!] Removing {len(rows)} too high supply temperatures')
+    df.drop(rows, inplace=True)
+
+    rows = df[df.temperature_outdoor > temperature_maximum].index
+    if rows.any():
+        print(f'[!] Removing {len(rows)} too high outdoor temperatures')
+    df.drop(rows, inplace=True)
 
     return df
