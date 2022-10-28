@@ -29,6 +29,7 @@ class Killawattr:
             print(f'[+] Wrote the csv to {output_file}')
 
     def save_graph(self, df, filename):
+        df = df.round(1)
         output_file = f'graph-{filename}.html'
         graph = df.plot.line()
         graph.write_html(output_file)
